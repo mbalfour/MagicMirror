@@ -243,6 +243,11 @@ Module.register("calendar",{
 			var event = events[e];
 			var now = this.getCurrentDate();
 
+			if (event.endDate < now)
+			{
+				continue;
+			}
+
 			var eventWrapper = document.createElement("tr");
 			eventWrapper.className = "normal";
 
