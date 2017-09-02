@@ -32,6 +32,8 @@
 .calendar-monthly ol.month            {width:924px;margin:0 auto;display:inline-block;}
 .calendar-monthly li                  {list-style:none;}
 
+.calendar-monthly .symbol             {}
+
 /*
  * Day-of-week headers
  -------------------------*/

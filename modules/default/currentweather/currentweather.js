@@ -164,7 +164,8 @@ Module.register("currentweather",{
 	 * Calls processWeather on succesfull response.
 	 */
 	updateWeather: function() {
-		var url = this.config.apiBase + this.config.apiVersion + "/" + this.config.weatherEndpoint + '/' + this.getParams();
+		// TODO: Figure out why someone thought a "/" belonged after forecastEndpoint
+		var url = this.config.apiBase + this.config.apiVersion + "/" + this.config.weatherEndpoint + this.getParams();
 		var self = this;
 		var retry = true;
 

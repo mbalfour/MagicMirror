@@ -8,14 +8,16 @@
 var ical = require("./vendor/ical.js");
 var moment = require("moment");
 
-var CalendarFetcher = function(url, reloadInterval, maximumEntries, maximumNumberOfDays, fetchStartDate) {
+var CalendarFetcher = function (url, reloadInterval, maximumEntries, maximumNumberOfDays, initialFetchStartDate) {
 	var self = this;
 
 	var reloadTimer = null;
 	var events = [];
 
 	var fetchFailedCallback = function() {};
-	var eventsReceivedCallback = function() {};
+	var eventsReceivedCallback = function () { };
+
+	var fetchStartDate = initialFetchStartDate;
 
 	/* fetchCalendar()
 	 * Initiates calendar fetch.
@@ -30,7 +32,7 @@ var CalendarFetcher = function(url, reloadInterval, maximumEntries, maximumNumbe
 				'User-Agent': 'Mozilla/5.0 (Node.js 6.0.0) MagicMirror/v2 (https://github.com/MichMich/MagicMirror/)'
 			}
 		}
-		ical.fromURL(url, opts, function(err, data) {
+		ical.fromURL(url, opts, function (err, data) {
 			if (err) {
 				fetchFailedCallback(self, err);
 				scheduleTimer();
@@ -304,6 +306,15 @@ var CalendarFetcher = function(url, reloadInterval, maximumEntries, maximumNumbe
 	this.events = function() {
 		return events;
 	};
+
+	/* updateStartDate(newStartDate)
+	 * Update the fetcher's startDate calendar filter to the newly-passed-in start date.
+	 *
+	 * argument newStartDate - The new start date to set the startDate filter to.
+	 */
+	this.updateStartDate = function (newStartDate) {
+		fetchStartDate = newStartDate;
+	}
 
 };
 

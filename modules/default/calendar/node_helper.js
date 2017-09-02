@@ -27,6 +27,16 @@ module.exports = NodeHelper.create({
 			//console.log('ADD_CALENDAR: ');
 			this.createFetcher(payload.url, payload.fetchInterval, payload.maximumEntries, payload.maximumNumberOfDays, payload.startDate);
 		}
+		else if (notification == "UPDATE_START_DATE")
+		{
+			// As time passes, our start date for filtering calendar entries will increase.  Make sure to tell the calendar
+			// fetcher the new start date.
+			var fetcher = this.fetchers[payload.url];
+			if (typeof fetcher != "undefined")
+			{
+				fetcher.updateStartDate(payload.startDate);
+			}
+		}
 	},
 
 	/* createFetcher(url, reloadInterval)

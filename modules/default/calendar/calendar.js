@@ -15,6 +15,8 @@ Module.register("calendar",{
 		maximumNumberOfDays: 365,
 		displaySymbol: true,
 		defaultSymbol: "calendar", // Fontawesome Symbol see http://fontawesome.io/cheatsheet/
+		displayColor: true,
+		defaultColor: "#aaa",
 		displayRepeatingCountTitle: false,
 		defaultRepeatingCountTitle: '',
 		maxTitleLength: 25,
@@ -120,9 +122,18 @@ Module.register("calendar",{
 				this.calendarData[payload.url] = payload.events;
 				this.loaded = true;
 			}
+
+			// On every calendar event refresh, let's use this opportunity to notify the calendar fetcher
+			// of the currently-desired start date.
+			this.sendSocketNotification("UPDATE_START_DATE", {
+				url: payload.url,
+				startDate: this.getStartDate()
+			});
+
 		} else if (notification === "FETCH_ERROR") {
 			Log.error("Calendar Error. Could not fetch calendar: " + payload.url);
-			Log.error("Fetcher Error: %o", payload.error);
+			Log.error("Fetcher Error: ");
+			Log.error(payload.error);
         } else if (notification === "INCORRECT_URL") {
 			Log.error("Calendar Error. Incorrect url: " + payload.url);
 		} else {
@@ -145,8 +156,28 @@ Module.register("calendar",{
 	        var event = events[e];
 
 	        if (event.startDate < startOfNextDay && event.endDate >= startOfThisDay) {
-	            html += '<p>' + event.title + '</p>';
-	            //html += '<p>' + moment(event.endDate, "x").format("MMM Do") + '</p>';
+	        	var preColor = '';
+	        	var postColor = '';
+
+				if (this.config.displayColor) {
+					preColor = '<div style="color:' + this.colorForUrl(event.url) + '">';
+					postColor = '</div>';
+				}
+
+	        	html += preColor;
+	        	html += '<p>';
+	        	// TODO: Add symbols?  Colors?
+	        	/*
+	        	if (this.config.displaySymbol)
+	        	{
+	            	html += '<td class="symbol">';
+	            	html += '<span class ="fa fa-' + this.symbolForUrl(event.url) + '">';
+	            	html += '</span></td>';
+	            }
+				*/
+	            html += event.title + '</p>';
+	            html += postColor;
+	        	//html += '<p>' + moment(event.endDate, "x").format("MMM Do") + '</p>';
 	        }
 	    }
 
@@ -243,6 +274,8 @@ Module.register("calendar",{
 			var event = events[e];
 			var now = this.getCurrentDate();
 
+			// Only show events that haven't already ended.  This check is useful for the eventual
+			// case where we want to share the same calendar fetchers with a list view *and* a month view.
 			if (event.endDate < now)
 			{
 				continue;
@@ -454,6 +487,23 @@ Module.register("calendar",{
 		}
 
 		return this.config.defaultSymbol;
+	},
+	/* colorForUrl(url)
+	 * Retrieves the color for a specific url.
+	 *
+	 * argument url sting - Url to look for.
+	 *
+	 * return string - The color
+	 */
+	colorForUrl: function(url) {
+		for (var c in this.config.calendars) {
+			var calendar = this.config.calendars[c];
+			if (calendar.url === url && typeof calendar.color === "string")  {
+				return calendar.color;
+			}
+		}
+
+		return this.config.defaultColor;
 	},
 	/* countTitleForUrl(url)
 	 * Retrieves the name for a specific url.
